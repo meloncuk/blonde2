@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Phone, Mail, MapPin, Clock, ArrowRight } from "lucide-react";
-import { base44 } from "@/api/base44Client";
 
 const info = [
   { icon: Phone, label: "Telefoon", value: "+31 20 123 4567", href: "tel:+31201234567" },
@@ -39,14 +38,15 @@ export default function Contact() {
     setSending(true);
     setError(false);
     try {
-      await base44.functions.invoke("submitLead", {
-        naam: fd.get("naam"),
-        email: fd.get("email"),
-        telefoon: fd.get("telefoon"),
-        postcode: fd.get("postcode"),
-        project_type: fd.get("type"),
-        bericht: fd.get("bericht"),
+      const response = await fetch("https://formspree.io/f/mljdbbrk", {
+        method: "POST",
+        body: fd,
+        headers: { Accept: "application/json" },
       });
+
+      if (!response.ok) {
+        throw new Error("Formspree submission failed");
+      }
       form.reset();
       setSent(true);
       setTimeout(() => setSent(false), 6000);
